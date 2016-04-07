@@ -141,7 +141,7 @@
             "<div style=\"position: absolute; right: 20px; bottom: 5px; font-size: 10px;\">PopcornSE by <a title=\"quill's website\" href=\"http://codequicksand.com\">Quill</a></div>" +
             "<p><b>" + Object.keys(storedEvents).length + " things happened.</b></p>" +
             "<p style=\"padding-top: 0.1px;\"></p>" +
-            "<input class=\"button\" type=\"button\" id=\"_erase\" value=\"Erase flags\" style=\"width: 7em; margin: 10px;\">" +
+            "<input class=\"button\" type=\"button\" id=\"_erase\" value=\"Erase flags\" style=\"width: 8em; margin: 10px;\">" +
             "<input class=\"button\" type=\"button\" id=\"_close\" value=\"Close popup\" id=\"close-dialog-button\" style=\"width: 8em; margin: 10px 10px 20px;\">";
             Object.keys(storedEvents).forEach(function(key){
                 var event = storedEvents[key];
