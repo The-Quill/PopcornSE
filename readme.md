@@ -5,3 +5,12 @@ Thanks to Stack Exchange's _amazing_ userbase, flags are handled faster than lig
 [Click here to install](https://github.com/The-Quill/PopcornSE/raw/master/PopcornSE.user.js).
 
 This should work for most browsers, but if you encounter a problem, please make a GitHub issue.
+
+---
+#How it looks
+
+![convenient little popup](http://i.stack.imgur.com/Xg7R0.png)
+
+When you click it, it looks like this:
+
+![thing](http://i.imgur.com/1mccokw.png)
