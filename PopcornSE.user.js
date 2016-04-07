@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         PopcornSE
 // @namespace    https://github.com/The-Quill/PopcornSE
-// @version      2.0
+// @version      2.3
 // @description  Show the incoming flags
 // @author       Quill
 // @match *://chat.stackexchange.com/rooms/*
 // @match *://chat.stackoverflow.com/rooms/*
 // @match *://chat.meta.stackexchange.com/rooms/*
 // @grant        none
+// @downloadURL https://github.com/The-Quill/PopcornSE/raw/master/PopcornSE.user.js
+// @updateURL https://github.com/The-Quill/PopcornSE/raw/master/PopcornSE.user.js
 // ==/UserScript==
 
 (function(global){
@@ -164,10 +166,4 @@
         });
     }
     connect();
-
-    var PopcornSE = function(){};
-    PopcornSE.prototype.getStoredEvents = getStoredEvents;
-    PopcornSE.prototype.localStorageLookupKey = localStorageLookupKey;
-    PopcornSE.prototype.openPopup = openPopup;
-    global.PopcornSE = PopcornSE;
 })(window);
