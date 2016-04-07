@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PopcornSE
-// @namespace    http://codequicksand.com
-// @version      1.0
+// @namespace    https://github.com/The-Quill/PopcornSE
+// @version      2.0
 // @description  Show the incoming flags
 // @author       Quill
 // @match *://chat.stackexchange.com/rooms/*
@@ -18,22 +18,31 @@
         ModeratorFlag: 12,
         UserSuspended: 29
     };
-    var events = {};
+    var socket;
+    var socketUrl;
     if (!localStorage.hasOwnProperty(localStorageLookupKey)){
         localStorage.setItem(localStorageLookupKey, JSON.stringify({}));
     }
-    function mergeEvents(){
-        var storedEvents = JSON.parse(localStorage.getItem(localStorageLookupKey));
-        Object.keys(events).forEach(function(messageId){
-            var event = events[messageId];
-            if (!Object.keys(storedEvents).hasOwnProperty(messageId)){
-                storedEvents[messageId] = event;
-            }
-        });
-        localStorage.setItem(localStorageLookupKey, JSON.stringify(storedEvents));
-        setFlagScore(Object.keys(storedEvents).length);
+    function getStoredEvents(){
+        return JSON.parse(localStorage.getItem(localStorageLookupKey));
     }
-    function setFlagScore(flagScore){
+    function setStoredEvents(eventsToSet){
+        localStorage.setItem(localStorageLookupKey, JSON.stringify(eventsToSet));
+    }
+    function mergeEventIntoLocalStorage(event){
+        if (!event.hasOwnProperty('content')){
+            console.log("Burger", event);
+            return false;
+        }
+        console.log("Pizza", event);
+        var storedEvents = getStoredEvents();
+        if (!storedEvents.hasOwnProperty(event.message_id)){
+            storedEvents[event.message_id] = event;
+        }
+        setStoredEvents(storedEvents);
+    }
+    function setIconScore(){
+        var flagScore = Object.keys(getStoredEvents()).length;
         if ($('._popcornCount').length !== 0){
             $('._popcornCount')[0].parentNode.removeChild($('._popcornCount')[0]);
         }
@@ -54,60 +63,61 @@
         $(profileImageArea).append(flagCountHTML);
         $('._popcornCount')[0].addEventListener('click', openPopup);
     }
-    function eventBuilder(type, messageContent, messageId, room){
-        var builtEvent = {
-            'type': type,
-            'content': messageContent,
-            'room': room,
-            'message_id': messageId
-        };
-        events[messageId] = builtEvent;
-        mergeEvents();
-    }
 
     function processEvent(event){
         switch(event.event_type){
             case NOTABLE_EVENT_TYPES.MessageFlagged:
-                eventBuilder("Message flag", event.content, event.message_id, {
-                    id: event.room_id,
-                    name: event.room_name
+                mergeEventIntoLocalStorage({
+                    'type': "Message flag",
+                    'content': event.content,
+                    'room': {
+                        'id': event.room_id,
+                        'name': event.room_name
+                    },
+                    'message_id': event.message_id
                 });
                 break;
             case NOTABLE_EVENT_TYPES.ModeratorFlag:
-                eventBuilder("Moderator flag", event.content, event.message_id, {
-                    id: event.room_id,
-                    name: event.room_name
+                mergeEventIntoLocalStorage({
+                    'type': "Moderator flag",
+                    'content': event.content,
+                    'room': {
+                        'id': event.room_id,
+                        'name': event.room_name
+                    },
+                    'message_id': event.message_id
                 });
                 break;
             case NOTABLE_EVENT_TYPES.UserSuspended:
-                eventBuilder("User suspended", event.content, event.message_id, {
-                    id: event.room_id,
-                    name: event.room_name
+                mergeEventIntoLocalStorage({
+                    'type': "User suspension",
+                    'content': event.content,
+                    'room': {
+                        'id': event.room_id,
+                        'name': event.room_name
+                    },
+                    'message_id': event.message_id
                 });
                 break;
         }
+        setIconScore();
     }
-
-    var socket;
-    var roomid = Number(/\d+/.exec(location)[0]);
-    var url;
 
     function connect() {
         $.post('/ws-auth', fkey({
-            roomid: roomid
+            roomid: Number(/\d+/.exec(location)[0])
         })).done(function (data) {
-            url = data.url;
+            socketUrl = data.url;
             poll();
         });
     }
 
     function poll() {
-        socket = new WebSocket(url + '?l=' + Date.now());
-        socket.onmessage = ondata;
-        socket.onclose = onclose;
+        socket = new WebSocket(socketUrl + '?l=' + Date.now());
+        socket.onmessage = onMessage;
+        socket.onclose = onClose;
     }
-
-    function ondata(response) {
+    function onMessage(response) {
         var frame = JSON.parse(response.data);
         Object.keys(frame).forEach(function(room){
             if ('e' in frame[room]) {
@@ -115,8 +125,7 @@
             }
         });
     }
-
-    function onclose() {
+    function onClose() {
         socket.close();
         socket = null;
         setTimeout(poll, 1000 * 10);
@@ -129,14 +138,14 @@
         "<div style=\"top: 4%; left: 12%; display: block; padding: 10px; position: fixed; width: 75%; z-index: 1001;\" class=\"wmd-prompt-dialog\">" +
             "<div style=\"position: absolute; right: 20px; bottom: 5px; font-size: 10px;\">PopcornSE by <a title=\"quill's website\" href=\"http://codequicksand.com\">Quill</a></div>" +
             "<p><b>" + Object.keys(storedEvents).length + " things happened.</b></p>" +
-            "<p style=\"padding-top: 0.1px;\"></p>";
+            "<p style=\"padding-top: 0.1px;\"></p>" +
             "<input class=\"button\" type=\"button\" id=\"_erase\" value=\"Erase flags\" style=\"width: 7em; margin: 10px;\">" +
-            "<input class=\"button\" type=\"button\" id=\"_close\" value=\"Close popup\" id=\"close-dialog-button\" style=\"width: 7em; margin: 10px 10px 20px;\">" +
+            "<input class=\"button\" type=\"button\" id=\"_close\" value=\"Close popup\" id=\"close-dialog-button\" style=\"width: 7em; margin: 10px 10px 20px;\">";
             Object.keys(storedEvents).forEach(function(key){
                 var event = storedEvents[key];
                 contentString += "" +
                     "<p style=\"padding-top: 4px; margin:0; line-height: 16px;\">" +
-                        "- <a href=\"http://" + document.location.hostname + "/transcript/message/" + event.message_id + "#" + event.message_id "\">" + event.type + "</a> in " +
+                        "- <a href=\"http://" + document.location.hostname + "/transcript/message/" + event.message_id + "#" + event.message_id + "\">" + event.type + "</a> in " +
                         "<a href=\"http://" + document.location.hostname + "/rooms/" + event.room.id + "\">" +
                             event.room.name +
                         "</a>" +
@@ -155,4 +164,10 @@
         });
     }
     connect();
+
+    var PopcornSE = function(){};
+    PopcornSE.prototype.getStoredEvents = getStoredEvents;
+    PopcornSE.prototype.localStorageLookupKey = localStorageLookupKey;
+    PopcornSE.prototype.openPopup = openPopup;
+    global.PopcornSE = PopcornSE;
 })(window);
