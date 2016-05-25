@@ -50,17 +50,17 @@
         }
         if (flagScore === 0){ return false; }
         var profileImageArea = $('div#active-user')[0].parentElement;
-        var extraStyles = "" +
-            "background-color: rgb(138, 118, 222);" +
-            "background: rgb(138, 118, 222);" +
-            "text-shadow: 0 1px 0 #c6cdcb;" +
-            "color: #2b3a35 !important;" +
-            "left: 55px;" +
-            "top: 55px;" +
-            "z-index: 5;" +
-            "position: absolute;" +
-            "visibility: visible;" +
-            "display: block;";
+        var extraStyles = `
+            background-color: rgb(138, 118, 222);
+            background: rgb(138, 118, 222);
+            text-shadow: 0 1px 0 #c6cdcb;
+            color: #2b3a35 !important;
+            left: 55px;
+            top: 55px;
+            z-index: 5;
+            position: absolute;
+            visibility: visible;
+            display: block;`;
         var flagCountHTML = `<div class="_popcornCount" id="reply-count" style="${extraStyles}">${flagScore}</div>`;
         $(profileImageArea).append(flagCountHTML);
         $('._popcornCount')[0].addEventListener('click', openPopup);
