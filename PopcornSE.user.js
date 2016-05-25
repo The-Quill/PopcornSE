@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PopcornSE
 // @namespace    https://github.com/The-Quill/PopcornSE
-// @version      2.3
+// @version      2.3.01
 // @description  Show the incoming flags
 // @author       Quill
 // @match *://chat.stackexchange.com/rooms/*
@@ -61,7 +61,7 @@
             "position: absolute;" +
             "visibility: visible;" +
             "display: block;";
-        var flagCountHTML = "<div class=\"_popcornCount\" id=\"reply-count\" style=\"" + extraStyles + "\">" + flagScore + "</div>";
+        var flagCountHTML = `<div class="_popcornCount" id="reply-count" style="${extraStyles}">${flagScore}</div>`;
         $(profileImageArea).append(flagCountHTML);
         $('._popcornCount')[0].addEventListener('click', openPopup);
     }
@@ -135,26 +135,26 @@
 
     function openPopup(){
         var storedEvents = JSON.parse(localStorage.getItem(localStorageLookupKey));
-        var contentString = "" +
-        "<div class=\"wmd-prompt-background\" style=\"position: fixed; top: 0px; z-index: 1000; opacity: 0.5; left: 0px; width: 100%; height: 100%;\"></div>" +
-        "<div style=\"top: 4%; left: 12%; display: block; padding: 10px; position: fixed; width: 75%; z-index: 1001;\" class=\"wmd-prompt-dialog\">" +
-            "<div style=\"position: absolute; right: 20px; bottom: 5px; font-size: 10px;\">PopcornSE by <a title=\"quill's website\" href=\"http://codequicksand.com\">Quill</a></div>" +
-            "<p><b>" + Object.keys(storedEvents).length + " things happened.</b></p>" +
-            "<p style=\"padding-top: 0.1px;\"></p>" +
-            "<input class=\"button\" type=\"button\" id=\"_erase\" value=\"Erase flags\" style=\"width: 8em; margin: 10px;\">" +
-            "<input class=\"button\" type=\"button\" id=\"_close\" value=\"Close popup\" id=\"close-dialog-button\" style=\"width: 8em; margin: 10px 10px 20px;\">";
-            Object.keys(storedEvents).forEach(function(key){
-                var event = storedEvents[key];
-                contentString += "" +
-                    "<p style=\"padding-top: 4px; margin:0; line-height: 16px;\">" +
-                        "- <a href=\"http://" + document.location.hostname + "/transcript/message/" + event.message_id + "#" + event.message_id + "\">" + event.type + "</a> in " +
-                        "<a href=\"http://" + document.location.hostname + "/rooms/" + event.room.id + "\">" +
-                            event.room.name +
-                        "</a>" +
-                    "</p>" +
-                    "<code>" + event.content + "</code><hr />";
-            });
-            contentString += "</div>";
+        var contentString = ` 
+        <div class="wmd-prompt-background" style="position: fixed; top: 0px; z-index: 1000; opacity: 0.5; left: 0px; width: 100%; height: 100%;"></div>
+        <div style="top: 4%; left: 12%; display: block; padding: 10px; position: fixed; width: 75%; z-index: 1001;" class="wmd-prompt-dialog">
+            <div style="position: absolute; right: 20px; bottom: 5px; font-size: 10px;">PopcornSE by <a title="quill's website" href="http://codequicksand.com">Quill</a></div>
+            <p><b> ${Object.keys(storedEvents).length} things happened.</b></p>
+            <p style="padding-top: 0.1px;"></p> 
+            <input class="button" type="button" id="_erase" value="Erase flags" style="width: 8em; margin: 10px;">
+            <input class="button" type="button" id="_close" value="Close popup" id="close-dialog-button" style="width: 8em; margin: 10px 10px 20px;">`;
+        Object.keys(storedEvents).forEach(function(key){
+            var event = storedEvents[key];
+            contentString += `
+                <p style="padding-top: 4px; margin:0; line-height: 16px;">
+                    - <a href="http://${document.location.hostname}/transcript/message/${event.message_id}#${event.message_id}">${event.type} </a> in
+                    <a href="http://${document.location.hostname}/rooms/${event.room.id}">
+                        ${event.room.name}
+                    </a>
+                </p>
+                <code>${event.content}</code><hr />`;
+        });
+        contentString += "</div>";
         $('body').append(contentString);
         $("#_erase").click(function(){
             localStorage.setItem(localStorageLookupKey, JSON.stringify({}));
