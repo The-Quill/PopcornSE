@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PopcornSE
 // @namespace    https://github.com/The-Quill/PopcornSE
-// @version      2.3.01
+// @version      2.3.02
 // @description  Show the incoming flags
 // @author       Quill
 // @match *://chat.stackexchange.com/rooms/*
