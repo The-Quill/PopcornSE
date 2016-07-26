@@ -137,7 +137,7 @@
         var storedEvents = JSON.parse(localStorage.getItem(localStorageLookupKey));
         var contentString = ` 
         <div class="wmd-prompt-background" style="position: fixed; top: 0px; z-index: 1000; opacity: 0.5; left: 0px; width: 100%; height: 100%;"></div>
-        <div style="top: 4%; left: 12%; display: block; padding: 10px; position: fixed; width: 75%; z-index: 1001;" class="wmd-prompt-dialog">
+        <div style="top: 4%; left: 12%; display: block; padding: 10px; position: fixed; width: 75%; z-index: 1001; max-height: 80%; overflow-y: scroll;" class="wmd-prompt-dialog">
             <div style="position: absolute; right: 20px; bottom: 5px; font-size: 10px;">PopcornSE by <a title="quill's website" href="http://codequicksand.com">Quill</a></div>
             <p><b> ${Object.keys(storedEvents).length} things happened.</b></p>
             <p style="padding-top: 0.1px;"></p> 
